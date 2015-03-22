@@ -104,17 +104,25 @@ class GithubHookHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
+        def send_plain_response(msg):
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.send_header('Content-Length', str(len(msg)))
+            self.end_headers()
+            self.wfile.write(msg.encode())
+
+
         content_length = int(self.headers['Content-Length'] or 0)
         content_type = self.headers['Content-Type']
         hub_signature = self.headers['X-Hub-Signature']
         github_event = self.headers['X-GitHub-Event']
 
         if github_event == 'ping':
-            self.send_response(200)
+            send_plain_response('pong')
             return
 
         if github_event not in self._github_allowed_events:
-            self.send_response(400)
+            self.send_error(400)
             return
 
         try:
@@ -131,17 +139,17 @@ class GithubHookHandler(BaseHTTPRequestHandler):
             payload = json.loads(json_data)
             repo = payload['repository']['name']
         except:
-            self.send_response(400)
+            self.send_error(400)
             return
 
         if not self._validate_signature(repo, post_data, hub_signature):
-            self.send_response(401)
+            self.send_error(401)
             return
 
         if self.handle_payload(payload):
-            self.send_response(200)
+            send_plain_response('OK')
         else:
-            self.send_response(400)
+            self.send_error(400)
 
 
 class PullRequestHandler(GithubHookHandler):
