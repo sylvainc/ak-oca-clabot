@@ -76,6 +76,11 @@ class GithubHookHandler(BaseHTTPRequestHandler):
 
     _github_allowed_events = []
 
+    def setup(self):
+        config = self.server.config
+        self.timeout = config.getfloat('timeout')
+        return super().setup()
+
     def _validate_signature(self, repo, data, hub_signature):
 
         m = re.search('^sha1=(.*)', hub_signature or '')
