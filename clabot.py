@@ -111,7 +111,6 @@ class GithubHookHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(msg.encode())
 
-
         content_length = int(self.headers['Content-Length'] or 0)
         content_type = self.headers['Content-Type']
         hub_signature = self.headers['X-Hub-Signature']
@@ -373,8 +372,19 @@ def run(config):
     config = config['clabot']
 
     debug = config.getboolean('debug')
-    logging.basicConfig(level=debug and logging.DEBUG or logging.INFO)
-    _logger.debug('Server started in DEBUG mode')
+
+    log_level = config.get('log_level')
+    level = {
+        'CRITICAL': logging.CRITICAL,
+        'ERROR': logging.ERROR,
+        'WARNING': logging.WARNING,
+        'INFO': logging.INFO,
+        'DEBUG': logging.DEBUG
+    }.get(log_level, logging.INFO)
+    logging.basicConfig(level=level)
+
+    if debug:
+        _logger.info('Server started in DEBUG mode (no notification)')
 
     server_address = (config.get('interface'), config.getint('port'))
 
