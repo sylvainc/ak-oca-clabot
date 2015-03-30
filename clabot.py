@@ -211,7 +211,7 @@ class PullRequestHandler(GithubHookHandler):
                         users_sign
                     )
 
-                hit_users = [ (u,) for u in users_sign ]
+                hit_users = [(u,) for u in users_sign]
                 cache_cr.executemany(SQL_INSERT_HIT_CACHE, hit_users)
 
             if users_no_sign or users_oca_no_sign:
@@ -288,7 +288,7 @@ class PullRequestHandler(GithubHookHandler):
         )
         users_sign_notify, users_no_sign, \
             users_oca_no_sign, send_miss_notification = self._check_cla(
-                list(users_login),
+                list(users_login | users_no_login),
                 pull_request,
             )
 
@@ -315,9 +315,10 @@ class PullRequestHandler(GithubHookHandler):
             for user in users_oca_no_sign:
                 users_ko += '+ @%s\n' % user
             for user in users_no_sign:
-                users_ko += '+ @%s (login unknown in OCA database)\n' % user
-            for user in users_no_login:
-                users_ko += '+ %s (no github login found)\n' % user
+                if user not in users_no_login:
+                    users_ko += '+ @%s (login unknown in OCA database)\n' % user
+                else:
+                    users_ko += '+ %s (no github login found)\n' % user
 
             if send_miss_notification:
                 path = '/repos/{owner}/{repo}/issues/{number}/comments'
