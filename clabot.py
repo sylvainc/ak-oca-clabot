@@ -210,7 +210,10 @@ class PullRequestHandler(GithubHookHandler):
                         SQL_DELETE_MISS_CACHE % placeholders,
                         users_sign
                     )
-                cache_cr.executemany(SQL_INSERT_HIT_CACHE, (users_sign,))
+
+                hit_users = [ (u,) for u in users_sign ]
+                cache_cr.executemany(SQL_INSERT_HIT_CACHE, hit_users)
+
             if users_no_sign or users_oca_no_sign:
 
                 users = users_no_sign + users_oca_no_sign
