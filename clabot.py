@@ -293,9 +293,10 @@ class PullRequestHandler(GithubHookHandler):
 
         def post_notification(path, message):
 
+            _logger.debug('notification:path:' + path)
+            _logger.debug('notification:message:' + message)
+
             if self.server.debug:
-                _logger.debug('notification:path:' + path)
-                _logger.debug('notification:message:' + message)
                 return
 
             data = {'body': message}
