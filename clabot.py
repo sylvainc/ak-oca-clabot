@@ -309,7 +309,7 @@ class PullRequestHandler(GithubHookHandler):
                 auth=HTTPBasicAuth(login, password)
             )
 
-        if users_no_sign or users_oca_no_sign or users_no_login:
+        if users_no_sign or users_oca_no_sign:
 
             users_ko = ''
             for user in users_oca_no_sign:
